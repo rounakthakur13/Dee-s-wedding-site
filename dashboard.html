@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wedding Uploads Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f7f3ed;
+      font-family: 'Montserrat', sans-serif;
+      color: #5a3e2b;
+      min-height: 100vh;
+      padding: 2em 0;
+    }
+    .container {
+      max-width: 900px;
+      background: #fff;
+      margin: 2em auto;
+      padding: 2em 2em 1em 2em;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.13), 0 2px 8px rgba(0,0,0,0.07);
+      border: 5px solid #d4af37;
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+      color: #a4742d;
+      margin-bottom: 1em;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .logout-btn {
+      position: absolute;
+      top: 1.5em;
+      right: 2em;
+      background: #fff;
+      color: #a4742d;
+      border: 2px solid #d4af37;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.3em 1.2em;
+      transition: background 0.2s, color 0.2s;
+    }
+    .logout-btn:hover {
+      background: #d4af37;
+      color: #fff;
+    }
+    .event-section {
+      margin-bottom: 2em;
+    }
+    .event-title {
+      font-size: 1.3em;
+      color: #d4af37;
+      font-weight: 600;
+      margin-bottom: 0.7em;
+      border-bottom: 2px solid #f7e6b6;
+      padding-bottom: 0.2em;
+    }
+    .uploads-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2em;
+    }
+    .upload-card {
+      background: #faf8f5;
+      border: 2px solid #e7d6b1;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #e7d6b1;
+      width: 210px;
+      padding: 0.7em 0.7em 0.5em 0.7em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1em;
+      position: relative;
+    }
+    .upload-card img, .upload-card video {
+      max-width: 180px;
+      max-height: 140px;
+      border-radius: 8px;
+      margin-bottom: 0.5em;
+      background: #fff;
+      border: 1px solid #d4af37;
+    }
+    .upload-meta {
+      font-size: 0.97em;
+      color: #a4742d;
+      margin-bottom: 0.2em;
+      text-align: center;
+    }
+    .upload-caption {
+      font-size: 0.93em;
+      color: #bfa05a;
+      margin-bottom: 0.2em;
+      text-align: center;
+    }
+    .upload-guest {
+      font-size: 0.92em;
+      color: #7c6b4d;
+      text-align: center;
+    }
+    @media (max-width: 1000px) {
+      .container { padding: 1em; }
+      .uploads-grid { gap: 0.7em; }
+      .upload-card { width: 48vw; max-width: 220px;}
+    }
+    @media (max-width: 600px) {
+      .upload-card { width: 98vw; max-width: 100%; }
+      .uploads-grid { flex-direction: column; }
+    }
+    /* Login overlay */
+    #loginOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(247,243,237,0.98);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #loginBox {
+      background: #fff;
+      border: 3px solid #d4af37;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px #e7d6b1;
+      padding: 2em 2.5em 1.5em 2.5em;
+      min-width: 300px;
+      text-align: center;
+    }
+    #loginBox h2 {
+      color: #a4742d;
+      margin-bottom: 1em;
+    }
+    #loginBox input {
+      margin-bottom: 1em;
+    }
+    #loginError {
+      color: red;
+      min-height: 1.2em;
+      margin-bottom: 0.7em;
+    }
+    .select-upload {
+      position: absolute !important;
+      left: 10px !important;
+      top: 10px !important;
+      z-index: 10 !important;
+      width: 20px !important;
+      height: 20px !important;
+      /* Remove background and border override to allow default checked style */
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="dashboardContainer" style="display:none;">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <h1>Wedding Uploads Dashboard</h1>
+    <div class="d-flex flex-wrap align-items-center mb-3 gap-2">
+      <input id="searchInput" class="form-control" style="max-width:220px;" placeholder="Search by guest, caption, event...">
+      <select id="eventFilter" class="form-select" style="max-width:150px;">
+        <option value="">All Events</option>
+        <option>Mehendi</option>
+        <option>Sangeet</option>
+        <option>Wedding</option>
+        <option>Reception</option>
+        <option>Other</option>
+      </select>
+      <select id="typeFilter" class="form-select" style="max-width:120px;">
+        <option value="">All Types</option>
+        <option value="image">Images</option>
+        <option value="video">Videos</option>
+      </select>
+      <button class="btn btn-outline-secondary" onclick="loadUploads()">Refresh</button>
+    </div>
+    <div class="d-flex flex-wrap align-items-center mb-3 gap-2">
+      <button class="btn btn-sm btn-outline-primary" id="selectAllBtn" onclick="toggleSelectAll(event)">Select All</button>
+      <button class="btn btn-sm btn-danger" id="deleteSelectedBtn" onclick="deleteSelected(event)">Delete Selected</button>
+    </div>
+    <div id="uploadsArea"></div>
+
+    <!-- Lightbox Modal -->
+    <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+          <div class="modal-body text-center p-0">
+            <img id="lightboxImg" src="" style="max-width:100%;max-height:70vh;display:none;"/>
+            <video id="lightboxVid" src="" style="max-width:100%;max-height:70vh;display:none;" controls></video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Login Overlay -->
+  <div id="loginOverlay">
+    <form id="loginBox" onsubmit="return login(event)">
+      <h2>Admin Login</h2>
+      <div id="loginError"></div>
+      <input class="form-control" type="text" id="username" placeholder="Username" required autofocus>
+      <input class="form-control" type="password" id="password" placeholder="Password" required>
+      <button class="btn btn-custom w-100" type="submit" style="margin-top:0.5em;">Login</button>
+    </form>
+  </div>
+  <!-- Add Bootstrap JS for Modal support -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Simple login logic (admin:admin)
+    function login(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      if (u === 'admin' && p === 'admin') {
+        localStorage.setItem('weddingAdmin', '1');
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('dashboardContainer').style.display = '';
+        loadUploads();
+      } else {
+        document.getElementById('loginError').innerText = 'Invalid credentials';
+      }
+      return false;
+    }
+    function logout() {
+      localStorage.removeItem('weddingAdmin');
+      location.reload();
+    }
+    // Auto-login if already authenticated
+    if (localStorage.getItem('weddingAdmin') === '1') {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('dashboardContainer').style.display = '';
+      setTimeout(loadUploads, 100);
+    }
+
+    // Fetch uploads from backend
+    let uploads = [];
+
+    // Group uploads by event
+    function groupByEvent(arr) {
+      const groups = {};
+      arr.forEach(item => {
+        const ev = item.event || "Other";
+        if (!groups[ev]) groups[ev] = [];
+        groups[ev].push(item);
+      });
+      return groups;
+    }
+
+    // Render uploads
+    async function loadUploads() {
+      const area = document.getElementById('uploadsArea');
+      area.innerHTML = '';
+      let search = document.getElementById('searchInput').value.trim().toLowerCase();
+      let eventFilter = document.getElementById('eventFilter').value;
+      let typeFilter = document.getElementById('typeFilter').value;
+      try {
+        const res = await fetch('/api/uploads');
+        uploads = await res.json();
+      } catch {
+        area.innerHTML = '<div class="text-center text-danger">Failed to load uploads.</div>';
+        return;
+      }
+      // Filter by search
+      let filtered = uploads;
+      if (search) {
+        filtered = filtered.filter(up =>
+          (up.guestName||'').toLowerCase().includes(search) ||
+          (up.caption||'').toLowerCase().includes(search) ||
+          (up.event||'').toLowerCase().includes(search)
+        );
+      }
+      // Filter by event
+      if (eventFilter) {
+        filtered = filtered.filter(up => (up.event||'Other') === eventFilter);
+      }
+      // Filter by type
+      if (typeFilter) {
+        filtered = filtered.filter(up => up.type === typeFilter);
+      }
+      // Group by event (always show all uploads grouped by event)
+      const groups = {};
+      filtered.forEach(up => {
+        const ev = up.event && up.event.trim() ? up.event : 'Other';
+        if (!groups[ev]) groups[ev] = [];
+        groups[ev].push(up);
+      });
+      // For gallery lightbox
+      window._galleryUploads = filtered;
+      window._galleryIndexMap = {};
+      let idx = 0;
+      Object.keys(groups).forEach(event => {
+        const section = document.createElement('div');
+        section.className = 'event-section';
+        section.innerHTML = `<div class="event-title">${event} <span class='badge bg-warning text-dark ms-2'>${groups[event].length}</span></div>`;
+        const grid = document.createElement('div');
+        grid.className = 'uploads-grid';
+        groups[event].forEach(up => {
+          const card = document.createElement('div');
+          card.className = 'upload-card';
+          // Checkbox for multi-select (top left, always visible)
+          card.innerHTML += `<input type='checkbox' class='form-check-input select-upload' data-filename='${up.filename}' style='position:absolute;left:10px;top:10px;z-index:2;width:20px;height:20px;'>`;
+          // Show image or video with lightbox (make card clickable)
+          if (up.type === 'image') {
+            card.innerHTML += `<img src="${up.url}" alt="upload" loading="lazy" style='cursor:pointer;width:100%;' onclick='openGallery(${idx})'>`;
+          } else if (up.type === 'video') {
+            card.innerHTML += `<video src="${up.url}" controls preload="none" style='cursor:pointer;width:100%;' onclick='openGallery(${idx})'></video>`;
+          }
+          // Show only relevant metadata fields
+          let metaTable = '<table class="table table-sm table-borderless mb-0"><tbody>';
+          if (up.guestName && up.guestName.trim()) {
+            metaTable += `<tr><td style='padding:2px 6px;'><b>Guest Name</b></td><td style='padding:2px 6px;'>${up.guestName}</td></tr>`;
+          }
+          if (up.caption && up.caption.trim()) {
+            metaTable += `<tr><td style='padding:2px 6px;'><b>Caption</b></td><td style='padding:2px 6px;'>${up.caption}</td></tr>`;
+          }
+          metaTable += `<tr><td style='padding:2px 6px;'><b>Uploaded At</b></td><td style='padding:2px 6px;'>${up.uploadedAt}</td></tr>`;
+          metaTable += '</tbody></table>';
+          card.innerHTML += metaTable;
+          // Delete button
+          card.innerHTML += `<button class='btn btn-sm btn-danger mt-2' onclick='deleteUpload("${up.filename}")'>Delete</button>`;
+          grid.appendChild(card);
+          window._galleryIndexMap[up.filename] = idx;
+          idx++;
+        });
+        section.appendChild(grid);
+        area.appendChild(section);
+      });
+      if (!filtered.length) {
+        area.innerHTML = '<div class="text-center text-muted">No uploads found.</div>';
+      }
+    }
+    // Multi-select logic
+    function getSelectedFilenames() {
+      return Array.from(document.querySelectorAll('.select-upload:checked')).map(cb => cb.getAttribute('data-filename'));
+    }
+    function toggleSelectAll(e) {
+      e.preventDefault();
+      const all = document.querySelectorAll('.select-upload');
+      const allChecked = Array.from(all).every(cb => cb.checked);
+      all.forEach(cb => cb.checked = !allChecked);
+    }
+    async function deleteSelected(e) {
+      e.preventDefault();
+      const selected = getSelectedFilenames();
+      if (!selected.length) return alert('No uploads selected.');
+      if (!confirm('Delete selected uploads?')) return;
+      for (const filename of selected) {
+        await fetch(`/api/delete-upload/${filename}`, { method: 'DELETE' });
+      }
+      loadUploads();
+    }
+    // assignGroupToSelected removed
+
+    // Gallery lightbox logic
+    function openGallery(idx) {
+      const uploads = window._galleryUploads || [];
+      if (!uploads.length) return;
+      let current = idx;
+      const img = document.getElementById('lightboxImg');
+      const vid = document.getElementById('lightboxVid');
+      function show() {
+        const up = uploads[current];
+        if (!up) return;
+        if (up.type === 'image') {
+          img.src = up.url; img.style.display = '';
+          vid.style.display = 'none';
+        } else {
+          vid.src = up.url; vid.style.display = '';
+          img.style.display = 'none';
+        }
+        new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+      }
+      show();
+      // Add next/prev navigation
+      document.onkeydown = function(e) {
+        if (e.key === 'ArrowRight') { current = (current+1)%uploads.length; show(); }
+        if (e.key === 'ArrowLeft') { current = (current-1+uploads.length)%uploads.length; show(); }
+        if (e.key === 'Escape') { document.onkeydown = null; }
+      };
+    }
+
+    // Lightbox logic
+    function showLightbox(type, url) {
+      const img = document.getElementById('lightboxImg');
+      const vid = document.getElementById('lightboxVid');
+      if (type === 'img') {
+        img.src = url; img.style.display = '';
+        vid.style.display = 'none';
+      } else {
+        vid.src = url; vid.style.display = '';
+        img.style.display = 'none';
+      }
+      new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+    }
+
+    // Delete upload
+    async function deleteUpload(filename) {
+      if (!confirm('Delete this upload? This cannot be undone.')) return;
+      try {
+        const res = await fetch(`/api/delete-upload/${filename}`, { method: 'DELETE' });
+        if (res.ok) {
+          loadUploads();
+        } else {
+          alert('Failed to delete.');
+        }
+      } catch {
+        alert('Failed to delete.');
+      }
+    }
+
+    // Filter and sort events
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('searchInput').addEventListener('input', loadUploads);
+      document.getElementById('eventFilter').addEventListener('change', loadUploads);
+      document.getElementById('typeFilter').addEventListener('change', loadUploads);
+      // groupFilter event removed
+      // document.getElementById('sortBy').addEventListener('change', loadUploads);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Your Wedding Memories</title>
+  <!-- Fonts and Bootstrap -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- AOS for scroll animations -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/tus-js-client@3.1.0/dist/tus.min.js"></script>
+  <style>
+    body {
+      background: url('https://cdn.pixabay.com/photo/2017/08/30/07/52/background-2695569_1280.png') repeat center center fixed, #f7f3ed;
+      background-size: cover;
+      font-family: 'Montserrat', sans-serif;
+      color: #5a3e2b;
+      padding: 2em 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 650px;
+      background: rgba(255, 255, 255, 0.98);
+      margin: 2em auto;
+      padding: 2.5em 2em 2em 2em;
+      border-radius: 22px;
+      box-shadow: 0 10px 32px rgba(212, 175, 55, 0.13), 0 2px 8px rgba(0,0,0,0.07);
+      border: 6px solid #d4af37;
+      position: relative;
+      overflow: hidden;
+    }
+    .container:before, .container:after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: url('https://static.vecteezy.com/system/resources/previews/009/887/697/original/indian-mandala-clipart-design-illustration-free-png.png') no-repeat center center/contain;
+      opacity: 0.13;
+      z-index: 0;
+    }
+    .container:before {
+      top: -40px; left: -40px;
+    }
+    .container:after {
+      bottom: -40px; right: -40px;
+      transform: rotate(180deg);
+    }
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      text-align: center;
+      font-size: 3em;
+      margin-bottom: 0.5em;
+      color: #a4742d;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #fff7e0;
+      z-index: 1;
+      position: relative;
+      animation: fadeInDown 1.2s;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 1.1em;
+      color: #bfa05a;
+      margin-bottom: 1.5em;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 1px;
+      z-index: 1;
+      position: relative;
+      animation: fadeIn 2s;
+    }
+    .btn-custom {
+      background: linear-gradient(90deg, #d4af37 0%, #a4742d 100%);
+      color: white;
+      border: none;
+      font-weight: 600;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px #f7e6b6;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-custom:hover {
+      background: linear-gradient(90deg, #a4742d 0%, #d4af37 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .message {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 1em;
+      font-size: 1.1em;
+      min-height: 2em;
+      z-index: 1;
+      position: relative;
+    }
+    #preview {
+      display: flex;
+      flex-direction: row;
+      gap: 1em;
+      overflow-x: auto;
+      max-height: 220px;
+      padding-bottom: 0.5em;
+      margin-bottom: 1em;
+      border-bottom: 1px solid #eee;
+      z-index: 1;
+      position: relative;
+      animation: fadeInUp 1.2s;
+    }
+    #preview img, #preview video {
+      flex: 0 0 auto;
+      max-width: 160px;
+      max-height: 200px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #e7d6b1;
+      background: #faf8f5;
+      border: 2px solid #d4af37;
+      transition: transform 0.2s;
+      animation: zoomIn 0.7s;
+    }
+    #preview img:hover, #preview video:hover {
+      transform: scale(1.07) rotate(-2deg);
+      box-shadow: 0 4px 18px #d4af37;
+    }
+    #removeAllBtn {
+      display: none;
+      margin-bottom: 1em;
+      width: 100%;
+      background: #fff;
+      color: #a4742d;
+      border: 2px solid #d4af37;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: background 0.2s, color 0.2s;
+    }
+    #removeAllBtn:hover {
+      background: #d4af37;
+      color: #fff;
+    }
+    .form-label {
+      color: #a4742d;
+      font-weight: 600;
+      font-size: 1.1em;
+      letter-spacing: 1px;
+    }
+    .form-check-label {
+      color: #bfa05a;
+      font-size: 1em;
+    }
+    .form-control:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 0 0.2rem #d4af3740;
+    }
+    progress.form-range {
+      accent-color: #d4af37;
+      height: 8px;
+      border-radius: 8px;
+      background: #f7e6b6;
+      margin-bottom: 1em;
+    }
+    /* Decorative marigold garland */
+    .garland {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5em;
+      z-index: 1;
+      position: relative;
+    }
+    .garland img {
+      max-width: 340px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 2px 8px #f7e6b6);
+      animation: fadeInDown 1.5s;
+    }
+    /* Animations */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.8);}
+      to { opacity: 1; transform: scale(1);}
+    }
+    /* Responsive */
+    @media (max-width: 700px) {
+      .container { padding: 1em; }
+      h1 { font-size: 2em; }
+      .garland img { max-width: 200px; }
+      #preview img, #preview video { max-width: 110px; max-height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container animate__animated animate__fadeIn">
+    <div class="garland">
+      <img src="gold-arch-toran.png" alt="Gold Arch Toran" style="max-width:420px;width:100%;height:auto;object-fit:contain;" />
+    </div>
+    <h1>Upload Memories</h1>
+    <div class="subtitle">Share your favorite photos &amp; videos from our wedding events!<br>We can't wait to relive these moments with you.</div>
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="file" class="form-label">Select photos or videos</label>
+        <input class="form-control" type="file" name="file[]" id="file" accept="image/*,video/*" required multiple>
+        <small class="text-muted">Accepted: images/videos. Max size: 200MB per file.</small>
+      </div>
+      <!-- Optional fields start -->
+      <div class="mb-3">
+        <label for="guestName" class="form-label">Your Name (optional)</label>
+        <input class="form-control" type="text" name="guestName" id="guestName" maxlength="50" placeholder="Enter your name">
+      </div>
+      <div class="mb-3">
+        <label for="caption" class="form-label">Caption or Memory (optional)</label>
+        <input class="form-control" type="text" name="caption" id="caption" maxlength="120" placeholder="Add a short caption or memory">
+      </div>
+      <div class="mb-3">
+        <label for="event" class="form-label">Event (optional)</label>
+        <select class="form-select" name="event" id="event">
+          <option value="">Select event</option>
+          <option>Mehendi</option>
+          <option>Sangeet</option>
+          <option>Wedding</option>
+          <option>Reception</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <!-- Optional fields end -->
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="largeUploadToggle">
+        <label class="form-check-label" for="largeUploadToggle">
+          Large file upload (GBs, resumable)
+        </label>
+      </div>
+      <div id="preview" class="mb-3"></div>
+      <button type="button" id="removeAllBtn" class="btn" style="margin-bottom:1em;">Remove All</button>
+      <progress id="progressBar" value="0" max="100" class="form-range w-100 mb-3" style="display:none"></progress>
+      <button type="submit" class="btn btn-custom w-100">Upload</button>
+      <div class="message" id="message"></div>
+    </form>
+  </div>
+  <!-- Decorative floating lanterns -->
+  <img class="floating-lantern left-lantern" src="lantern.png" alt="Lantern">
+  <img class="floating-lantern right-lantern" src="lantern.png" alt="Lantern">
+  <style>
+    .floating-lantern {
+      position: fixed;
+      top: 38px;
+      width: 80px;
+      opacity: 0.95;
+      z-index: 2;
+      filter: drop-shadow(0 4px 16px #d4af37cc);
+      animation: floatLantern 5s ease-in-out infinite alternate;
+      transition: width 0.2s, top 0.2s, opacity 0.2s;
+    }
+    .left-lantern { left: 48px; }
+    .right-lantern { right: 48px; animation-direction: alternate-reverse; }
+    @media (max-width: 700px) {
+      .floating-lantern {
+        width: 48px;
+        top: 16px;
+        opacity: 0.88;
+      }
+      .left-lantern { left: 10px; }
+      .right-lantern { right: 10px; }
+    }
+    @keyframes floatLantern {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(36px) scale(1.07); }
+    }
+  </style>
+  <!-- JS: Preview, Upload, Animations -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 900, once: true });
+
+    const MAX_FILE_SIZE = 200 * 1024 * 1024; // 200MB
+    const TUS_ENDPOINT = "https://tusd.tusdemo.net/files/"; // Replace with your tus server endpoint
+
+    // Preview selected files
+    document.getElementById('file').addEventListener('change', function(e) {
+      const preview = document.getElementById('preview');
+      const removeBtn = document.getElementById('removeAllBtn');
+      const message = document.getElementById('message');
+      preview.innerHTML = '';
+      message.innerText = '';
+      message.style.color = '';
+      const files = e.target.files;
+      let tooLarge = false;
+      Array.from(files).forEach(file => {
+        if (file.size > MAX_FILE_SIZE) {
+          tooLarge = true;
+        }
+      });
+      if (tooLarge) {
+        message.style.color = 'red';
+        message.innerText = 'One or more files exceed the 200MB limit. Please select smaller files.';
+        e.target.value = '';
+        removeBtn.style.display = 'none';
+        return;
+      }
+      if (!files.length) {
+        removeBtn.style.display = 'none';
+        return;
+      }
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const img = document.createElement('img');
+          const url = URL.createObjectURL(file);
+          img.src = url;
+          img.setAttribute('data-aos', 'zoom-in');
+          img.onload = () => setTimeout(() => URL.revokeObjectURL(url), 1000);
+          img.onerror = () => { img.remove(); URL.revokeObjectURL(url); };
+          preview.appendChild(img);
+        } else if (file.type.startsWith('video/')) {
+          const video = document.createElement('video');
+          const url = URL.createObjectURL(file);
+          video.src = url;
+          video.controls = true;
+          video.setAttribute('data-aos', 'zoom-in');
+          video.onloadeddata = () => setTimeout(() => URL.revokeObjectURL(url), 1000);
+          video.onerror = () => { video.remove(); URL.revokeObjectURL(url); };
+          preview.appendChild(video);
+        }
+      });
+      removeBtn.style.display = '';
+      setTimeout(() => AOS.refresh(), 100);
+    });
+
+    // Remove all selected files and previews
+    document.getElementById('removeAllBtn').addEventListener('click', function() {
+      const fileInput = document.getElementById('file');
+      const preview = document.getElementById('preview');
+      fileInput.value = '';
+      preview.innerHTML = '';
+      this.style.display = 'none';
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const files = document.getElementById('file').files;
+      const message = document.getElementById('message');
+      const progressBar = document.getElementById('progressBar');
+      const largeUpload = document.getElementById('largeUploadToggle').checked;
+
+      if (!files.length) return;
+
+      if (largeUpload) {
+        progressBar.style.display = '';
+        progressBar.value = 0;
+        message.innerText = 'Uploading via resumable protocol...';
+
+        // Only upload one large file at a time for simplicity
+        const largeFile = Array.from(files).find(f => f.size > MAX_FILE_SIZE);
+        if (!largeFile) return;
+
+        const upload = new tus.Upload(largeFile, {
+          endpoint: TUS_ENDPOINT,
+          retryDelays: [0, 1000, 3000, 5000],
+          metadata: {
+            filename: largeFile.name,
+            filetype: largeFile.type
+          },
+          onError: function(error) {
+            message.style.color = 'red';
+            message.innerText = "Upload failed: " + error;
+            progressBar.style.display = 'none';
+          },
+          onProgress: function(bytesUploaded, bytesTotal) {
+            const percent = (bytesUploaded / bytesTotal) * 100;
+            progressBar.value = percent;
+          },
+          onSuccess: function() {
+            message.style.color = 'green';
+            message.innerText = "Large file upload successful! 🎉";
+            progressBar.style.display = 'none';
+            document.getElementById('uploadForm').reset();
+            document.getElementById('preview').innerHTML = '';
+          }
+        });
+        upload.start();
+        return;
+      }
+
+      // Regular upload for files <= 200MB
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].size > MAX_FILE_SIZE) {
+          message.style.color = 'red';
+          message.innerText = 'One or more files exceed the 200MB limit. Enable "Large file upload" for bigger files.';
+          return;
+        }
+      }
+      const form = e.target;
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('file[]', files[i]);
+      }
+      // Append metadata fields
+      formData.append('guestName', document.getElementById('guestName').value);
+      formData.append('caption', document.getElementById('caption').value);
+      formData.append('event', document.getElementById('event').value);
+
+      progressBar.style.display = '';
+      progressBar.value = 0;
+      message.innerText = '';
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action, true);
+
+      xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percent = (e.loaded / e.total) * 100;
+          progressBar.value = percent;
+        }
+      };
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          message.style.color = 'green';
+          message.innerText = 'Upload successful! 🎉';
+          form.reset();
+          document.getElementById('preview').innerHTML = '';
+        } else {
+          message.style.color = 'red';
+          message.innerText = 'Upload failed. Please try again.';
+        }
+        progressBar.style.display = 'none';
+      };
+
+      xhr.onerror = function() {
+        message.style.color = 'red';
+        message.innerText = 'An error occurred during upload.';
+        progressBar.style.display = 'none';
+      };
+
+      xhr.send(formData);
+    });
+  </script>
+  <script>
+    // Animate garland on load
+    document.querySelector('.garland img').classList.add('animate__animated', 'animate__fadeInDown');
+  </script>
+</body>
+</html>
