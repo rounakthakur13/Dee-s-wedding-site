@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -15,26 +16,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const app = express();
-app.post('/upload', (req, res) => {
-  upload(req, res, async err => {
-    if (err) return res.status(400).json({ success: false, error: err.message, files: [] });
-    const files = req.files || [];
-    if (!files.length) return res.status(400).json({ success: false, error: 'No files uploaded.', files: [] });
-
-    // Forward each file to your local server via ngrok
-    try {
-      const results = [];
-      for (const f of files) {
-        const form = new FormData();
-        form.append('file', fs.createReadStream(f.path), f.originalname);
-        const response = await axios.post('https://a6a5-152-58-43-39.ngrok-free.app/upload', form, {
-          headers: form.getHeaders()
-        });
-        results.push(response.data);
-      }
-      res.json({ success: true, files: results });
-    } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
+app.use(cors());
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, error: 'No file uploaded.' });
+  res.json({
+    success: true,
+    file: {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      path: req.file.path,
+      size: req.file.size
     }
   });
 });

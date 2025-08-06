@@ -203,7 +203,7 @@
     </div>
     <h1>Upload Memories</h1>
     <div class="subtitle">Share your favorite photos &amp; videos from our wedding events!<br>We can't wait to relive these moments with you.</div>
-    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" action="https://116ec57fe975.ngrok-free.app/upload" method="post" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="file" class="form-label">Select photos or videos</label>
         <input class="form-control" type="file" name="file[]" id="file" accept="image/*,video/*" required multiple>
@@ -353,11 +353,8 @@
         progressBar.style.display = '';
         progressBar.value = 0;
         message.innerText = 'Uploading via resumable protocol...';
-
-        // Only upload one large file at a time for simplicity
         const largeFile = Array.from(files).find(f => f.size > MAX_FILE_SIZE);
         if (!largeFile) return;
-
         const upload = new tus.Upload(largeFile, {
           endpoint: TUS_ENDPOINT,
           retryDelays: [0, 1000, 3000, 5000],
@@ -394,10 +391,10 @@
           return;
         }
       }
-      const form = e.target;
       const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('file[]', files[i]);
+      // Only send the first file as 'file' to match multer.single('file')
+      if (files.length > 0) {
+        formData.append('file', files[0]);
       }
       // Append metadata fields
       formData.append('guestName', document.getElementById('guestName').value);
@@ -408,8 +405,10 @@
       progressBar.value = 0;
       message.innerText = '';
 
+      // Always send to ngrok endpoint
+      const ngrokUrl = 'https://ae1cf7d81b5c.ngrok-free.app/upload';
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', form.action, true);
+      xhr.open('POST', ngrokUrl, true);
 
       xhr.upload.onprogress = function(e) {
         if (e.lengthComputable) {
@@ -422,7 +421,7 @@
         if (xhr.status === 200) {
           message.style.color = 'green';
           message.innerText = 'Upload successful! 🎉';
-          form.reset();
+          document.getElementById('uploadForm').reset();
           document.getElementById('preview').innerHTML = '';
         } else {
           message.style.color = 'red';
