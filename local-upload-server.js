@@ -17,16 +17,17 @@ const upload = multer({ storage });
 
 const app = express();
 app.use(cors());
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ success: false, error: 'No file uploaded.' });
+app.post('/upload', upload.array('file'), (req, res) => {
+  const files = req.files || [];
+  if (!files.length) return res.status(400).json({ success: false, error: 'No files uploaded.' });
   res.json({
     success: true,
-    file: {
-      filename: req.file.filename,
-      originalname: req.file.originalname,
-      path: req.file.path,
-      size: req.file.size
-    }
+    files: files.map(f => ({
+      filename: f.filename,
+      originalname: f.originalname,
+      path: f.path,
+      size: f.size
+    }))
   });
 });
 

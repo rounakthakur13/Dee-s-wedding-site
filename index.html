@@ -393,8 +393,9 @@
       }
       const formData = new FormData();
       // Only send the first file as 'file' to match multer.single('file')
-      if (files.length > 0) {
-        formData.append('file', files[0]);
+      // Send all files as 'file' for multiple uploads
+      for (let i = 0; i < files.length; i++) {
+        formData.append('file', files[i]);
       }
       // Append metadata fields
       formData.append('guestName', document.getElementById('guestName').value);
