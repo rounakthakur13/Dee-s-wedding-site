@@ -252,7 +252,7 @@
       let eventFilter = document.getElementById('eventFilter').value;
       let typeFilter = document.getElementById('typeFilter').value;
       try {
-        const res = await fetch('/api/uploads');
+        const res = await fetch('https://6fe85642b43c.ngrok-free.app/api/uploads');
         uploads = await res.json();
       } catch {
         area.innerHTML = '<div class="text-center text-danger">Failed to load uploads.</div>';
@@ -343,7 +343,7 @@
       if (!selected.length) return alert('No uploads selected.');
       if (!confirm('Delete selected uploads?')) return;
       for (const filename of selected) {
-        await fetch(`/api/delete-upload/${filename}`, { method: 'DELETE' });
+        await fetch(`https://6fe85642b43c.ngrok-free.app/api/delete-upload/${filename}`, { method: 'DELETE' });
       }
       loadUploads();
     }
@@ -395,7 +395,7 @@
     async function deleteUpload(filename) {
       if (!confirm('Delete this upload? This cannot be undone.')) return;
       try {
-        const res = await fetch(`/api/delete-upload/${filename}`, { method: 'DELETE' });
+        const res = await fetch(`https://6fe85642b43c.ngrok-free.app/api/delete-upload/${filename}`, { method: 'DELETE' });
         if (res.ok) {
           loadUploads();
         } else {
