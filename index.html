@@ -197,13 +197,24 @@
   </style>
 </head>
 <body>
+  <!-- Alternative Google Drive Upload Button -->
+  <div style="width:100%;text-align:center;margin-bottom:1.5em;">
+    <a href="https://drive.google.com/drive/folders/1Bdc6euJjwBKzDSNYUvpEn7z4CeIOpjec?usp=sharing" target="_blank" rel="noopener" 
+      class="btn btn-lg btn-success shadow-sm animate__animated animate__pulse" 
+      style="font-weight:700;font-size:1.18em;letter-spacing:1px;padding:0.7em 2.2em;border-radius:32px;box-shadow:0 2px 12px #d4af37;display:inline-flex;align-items:center;gap:0.7em;">
+  <!-- Official Google Drive Logo -->
+  <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" alt="Google Drive" height="28" style="vertical-align:middle;margin-right:0.5em;">
+      <span style="vertical-align:middle;">Alternative: Upload to Google Drive Folder</span>
+    </a>
+    <div style="font-size:0.98em;color:#6c757d;margin-top:0.3em;">If you face issues, you can upload directly to our shared Google Drive folder.</div>
+  </div>
   <div class="container animate__animated animate__fadeIn">
     <div class="garland">
       <img src="gold-arch-toran.png" alt="Gold Arch Toran" style="max-width:420px;width:100%;height:auto;object-fit:contain;" />
     </div>
     <h1>Upload Memories</h1>
     <div class="subtitle">Share your favorite photos &amp; videos from our wedding events!<br>We can't wait to relive these moments with you.</div>
-    <form id="uploadForm" action="https://116ec57fe975.ngrok-free.app/upload" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" action="https://pretty-worms-tease.loca.lt/upload" method="post" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="file" class="form-label">Select photos or videos</label>
         <input class="form-control" type="file" name="file[]" id="file" accept="image/*,video/*" required multiple>
@@ -402,12 +413,14 @@
       formData.append('caption', document.getElementById('caption').value);
       formData.append('event', document.getElementById('event').value);
 
+      // Add bypass-tunnel-reminder header for LocalTunnel
+      xhr.setRequestHeader('bypass-tunnel-reminder', 'anyvalue');
       progressBar.style.display = '';
       progressBar.value = 0;
       message.innerText = '';
 
       // Always send to ngrok endpoint
-      const ngrokUrl = 'https://993019ea99a5.ngrok-free.app/upload';
+      const ngrokUrl = 'https://pretty-worms-tease.loca.lt/upload';
       const xhr = new XMLHttpRequest();
       xhr.open('POST', ngrokUrl, true);
 
